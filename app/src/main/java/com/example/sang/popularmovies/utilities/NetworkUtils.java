@@ -22,7 +22,7 @@ public class NetworkUtils {
     private static final String page="1";
 
     //API Key here
-    private static final String api_key="e5aaf14af64d73bf82353b75c20333aa";
+    private static final String api_key="";
 
     private static final String default_sort ="popularity.desc";
 
