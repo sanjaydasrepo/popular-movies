@@ -1,3 +1,0 @@
-Please enter you API KEY in NetworkUtils.java
- //API Key here
-    private static final String api_key=" "; 
