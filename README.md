@@ -4,3 +4,4 @@ This is an android application for displaying the top rated and most popular mov
 Please enter you API KEY in NetworkUtils.java
  //API Key here
  Eg : private static final String api_key=" "; 
+ 
