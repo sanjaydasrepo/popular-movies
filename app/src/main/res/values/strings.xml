@@ -3,11 +3,35 @@
 
     <!--Network connection error-->
     <string name="network_error">Please check your internet connection !</string>
+    <string name="network_error_trailers">Failed to load trailers .Please check your internet connection !</string>
+    <string name="network_error_reviews">Failed to load Reviews .Please check your internet connection !</string>
+
+    <string name="no_reviews">No reviews for this movie</string>
 
     <!--For Additional error-->
     <string name="error_message">An error has occurred.</string>
     <string name="most_popular">Most Popular</string>
     <string name="highest_rated">Highest rated</string>
+    <string name="favourites">My favourites</string>
+    <string name="trailers_label">Trailers</string>
+    <string name="mark_as_favourite">Mark as favourite</string>
+    <string name="marked_as_favourite">Favourite</string>
+    <string name="reviews_label">Reviews</string>
 
     <integer name="num_of_columns">2</integer>
+    <string name="content_authority">com.example.sang.popularmovies</string>
+    <string name="title_activity_fav_movies">My Favourites</string>
+
+    <string name="title_activity_movie_review">Reviews</string>
+    <string name="my_favourites_header">My favourites</string>
+    <string name="FAV_TAG">FAV</string>
+    <string name="NOT_FAV">NOT-FAV</string>
+    <string name="reviews_link">reviews</string>
+    <string name="KEY_FOR_MOVIE_LIST_INTENT">movie</string>
+    <string name="KEY_FOR_MOVIE_LIST">movie_list</string>
+    <string name="error_showing_old_list">No Internet connection ! Showing old list</string>
+    <string name="KEY_FOR_MOVIE_ID_REVIEW">movie-id</string>
+    <string name="label_rating">Rating</string>
+    <string name="play_button">play_button</string>
+    <string name="no_favourites">You dont have any favourite movies</string>
 </resources>

@@ -3,7 +3,7 @@
     package="com.example.sang.popularmovies">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -19,7 +19,40 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MovieDetailsActivity"></activity>
+
+        <activity android:name=".MovieDetailsActivity"
+
+            >
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="com.example.sang.popularmovies.MainActivity"
+            />
+
+         </activity>
+
+
+
+
+        <activity android:name=".ReviewsActivity"
+            android:label="@string/title_activity_movie_review"
+            android:theme="@style/AppTheme">
+        </activity>
+
+        <!--Content provider for favourite movies-->
+
+        <provider
+            android:name=".data.MovieProvider"
+            android:authorities="@string/content_authority"
+            android:exported="false" />
+
+        <activity
+            android:name=".FavMoviesActivity"
+            android:label="@string/title_activity_fav_movies"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.sang.popularmovies.MainActivity"/>
+        </activity>
     </application>
 
 </manifest>

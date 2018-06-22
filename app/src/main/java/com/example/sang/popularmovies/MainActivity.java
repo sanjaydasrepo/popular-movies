@@ -2,10 +2,17 @@ package com.example.sang.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -18,6 +25,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.sang.popularmovies.data.MoviesContract;
+import com.example.sang.popularmovies.model.Movie;
+import com.example.sang.popularmovies.utilities.MovieDataUtils;
 import com.example.sang.popularmovies.utilities.NetworkUtils;
 import com.example.sang.popularmovies.utilities.PopularMoviesUtils;
 
@@ -27,13 +37,16 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.OnMovieClickHandler {
+public class MainActivity extends AppCompatActivity
+        implements MovieAdapter.OnMovieClickHandler  {
 
     private MovieAdapter movieAdapter;
     private RecyclerView mRecyclerView;
     private ProgressBar mLoadingIndicator;
     private TextView mErrorMessageDisplay;
     private int numberOfColumns = 2;
+
+
 
     private List<Movie> movieList;
 
@@ -62,13 +75,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnMo
         if(savedInstanceState == null) {
             loadDefaultMovieList();
         }
-        else if(savedInstanceState!=null && savedInstanceState.containsKey("movie_list")) {
-            movieList = savedInstanceState.getParcelableArrayList("movie_list");
+        else if(savedInstanceState!=null && savedInstanceState.containsKey(getString(R.string.KEY_FOR_MOVIE_LIST))) {
+            movieList = savedInstanceState.getParcelableArrayList(getString(R.string.KEY_FOR_MOVIE_LIST));
+
             if(movieList !=null) {
                 movieAdapter.setMovies(movieList);
                 if (!isOnline()) {
                     Toast.makeText(this,
-                            "No Internet connection ! Showing old list",
+                            R.string.error_showing_old_list,
                             Toast.LENGTH_LONG).show();
                 }
             }
@@ -82,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnMo
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         if(movieList !=null)
-            outState.putParcelableArrayList("movie_list" , (ArrayList<? extends Parcelable>) movieList);
+            outState.putParcelableArrayList(getString(R.string.KEY_FOR_MOVIE_LIST) , (ArrayList<? extends Parcelable>) movieList);
 
         super.onSaveInstanceState(outState);
     }
@@ -92,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnMo
         Context context = this;
         Class destClass = MovieDetailsActivity.class;
         Intent intent = new Intent(context , destClass);
-        intent.putExtra("movie" , movie);
+        intent.putExtra(getString(R.string.KEY_FOR_MOVIE_LIST_INTENT) , movie);
         startActivity(intent);
 
     }
@@ -115,11 +129,22 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnMo
             case R.id.menu_item_toprated:
                 loadTopRatedMovies();
                 break;
+            case R.id.menu_item_favourites:
+                loadFavourites();
+                break;
+
             default:
                 loadDefaultMovieList();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void loadFavourites() {
+        Context context = this;
+        Class destClass = FavMoviesActivity.class;
+        Intent intent = new Intent(context , destClass);
+        startActivity(intent);
     }
 
     private void loadDefaultMovieList() {
@@ -128,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnMo
     }
 
     private void loadTopRatedMovies(){
+
         String mUrl = NetworkUtils.getTopRatedUrl();
         loadMovies(mUrl);
     }
@@ -171,6 +197,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnMo
 
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
+
+
+
+    //Stage 1 implementation
 
     class LoadMovieTask extends AsyncTask<String,Void,List<Movie>>{
 

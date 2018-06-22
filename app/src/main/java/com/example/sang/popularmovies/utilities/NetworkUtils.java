@@ -11,9 +11,14 @@ import java.util.Scanner;
 
 public class NetworkUtils {
 
-    private static final String BASE_URL="https://api.themoviedb.org/3";
-    private static final String POPULAR_URL=BASE_URL + "/movie/popular";
-    private static final String TOP_RATED_URL=BASE_URL + "/movie/top_rated";
+    private static final String BASE_URL="https://api.themoviedb.org/3/movie/";
+    private static final String POPULAR_URL=BASE_URL + "popular";
+    private static final String TOP_RATED_URL=BASE_URL + "top_rated";
+    private static final String VIDEO_URL_ENDPOINT="videos";
+    private static final String MOVIE_REVIEW_ENDPOINT="reviews";
+
+    private static final String YOUTUBE_URL="https://www.youtube.com/watch?v=";
+    private static final String YOUTUBE_VEND_URL="vnd.youtube://";
 
     private static final String SIZE = "w185";
     private static final String IMAGE_URL="https://image.tmdb.org/t/p/"+SIZE;
@@ -22,7 +27,7 @@ public class NetworkUtils {
     private static final String page="1";
 
     //API Key here
-    private static final String api_key="e5aaf14af64d73bf82353b75c20333aa";
+    private static final String api_key="";
 
     private static final String default_sort ="popularity.desc";
 
@@ -56,6 +61,22 @@ public class NetworkUtils {
         return IMAGE_URL+imagePath;
     }
 
+    public static String getVideoUrl(String movieId){
+        String videoUrl = BASE_URL + movieId + "/"+ VIDEO_URL_ENDPOINT;
+        return videoUrl ;
+    }
+    public static String getReviewUrl(String movieId){
+        String videoUrl = BASE_URL + movieId + "/"+ MOVIE_REVIEW_ENDPOINT;
+        return videoUrl ;
+    }
+    public static String getYoutubeUrl(String videoKey){
+        String videoUrl = YOUTUBE_URL + videoKey;
+        return videoUrl ;
+    }
+    public static String getYoutubeVendUrl(String videoKey){
+        String videoUrl = YOUTUBE_VEND_URL + videoKey;
+        return videoUrl ;
+    }
     public static String getPopularUrl(){
         return POPULAR_URL;
     }
@@ -95,6 +116,7 @@ public class NetworkUtils {
         return null;
 
     }
+
 
 
 }
