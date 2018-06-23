@@ -1,10 +1,7 @@
-This is an android application for displaying the top rated and most popular movies.
+This is an android application for displaying the top rated, most popular movies and your favourite list of movies.
 
 *** API KEY ***
 
-Please enter you API KEY in NetworkUtils.java
+Please enter you API KEY in gradle.properties
 
-//API Key here
-
-Eg : private static final String api_key=" "; 
  
