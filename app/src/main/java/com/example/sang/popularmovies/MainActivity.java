@@ -2,6 +2,7 @@ package com.example.sang.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -17,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -37,34 +39,37 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity
-        implements MovieAdapter.OnMovieClickHandler  {
+        implements MovieAdapter.OnMovieClickHandler
+        ,LoaderManager.LoaderCallbacks<Cursor>{
 
     private MovieAdapter movieAdapter;
-    private RecyclerView mRecyclerView;
-    private ProgressBar mLoadingIndicator;
-    private TextView mErrorMessageDisplay;
-    private int numberOfColumns = 2;
+    @BindView(R.id.rv_movie_poster) RecyclerView mRecyclerView;
+    @BindView(R.id.pb_loading_indicator)ProgressBar mLoadingIndicator;
+    @BindView(R.id.tv_error_message_display) TextView mErrorMessageDisplay;
 
+    private int numberOfColumns ;
 
-
+    private static final int FAV_LOADER_ID = 123;
     private List<Movie> movieList;
+    private int mPosition = RecyclerView.NO_POSITION;
+
+    //Distinguish between loader data and asynctask data
+    private int LOADER_DATA = 0;
+    //Check if favourite menu item is clicked
+    private boolean IS_FAV_MOVIES_CLICKED = false;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
-//        * The ProgressBar that will indicate to the user that we are loading data. It will be
-//        * hidden when no data is loading.
-        mLoadingIndicator = findViewById(R.id.pb_loading_indicator);
-
-//       * Textview to display errors
-        mErrorMessageDisplay = (TextView) findViewById(R.id.tv_error_message_display);
-
-//       * Recyclerview to display movie posters
-        mRecyclerView = findViewById(R.id.rv_movie_poster);
+        numberOfColumns = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? 4 : 2;
 
         GridLayoutManager layoutManager = new GridLayoutManager(this , numberOfColumns);
         mRecyclerView.setLayoutManager(layoutManager);
@@ -85,6 +90,9 @@ public class MainActivity extends AppCompatActivity
                             R.string.error_showing_old_list,
                             Toast.LENGTH_LONG).show();
                 }
+
+                LOADER_DATA = (int) savedInstanceState.getInt(getString(R.string.LOADER_DATA_KEY));
+                IS_FAV_MOVIES_CLICKED = savedInstanceState.getBoolean(getString(R.string.MENU_ITEM_CLICKED_KEY));
             }
 
         }else{
@@ -95,17 +103,19 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        if(movieList !=null)
+        if(movieList !=null){
             outState.putParcelableArrayList(getString(R.string.KEY_FOR_MOVIE_LIST) , (ArrayList<? extends Parcelable>) movieList);
+            outState.putInt(getString(R.string.LOADER_DATA_KEY),LOADER_DATA);
+            outState.putBoolean(getString(R.string.MENU_ITEM_CLICKED_KEY) ,IS_FAV_MOVIES_CLICKED);
+        }
 
         super.onSaveInstanceState(outState);
     }
 
+
     @Override
     public void onMovieClick(Movie movie) {
-        Context context = this;
-        Class destClass = MovieDetailsActivity.class;
-        Intent intent = new Intent(context , destClass);
+        Intent intent = new Intent(this , MovieDetailsActivity.class);
         intent.putExtra(getString(R.string.KEY_FOR_MOVIE_LIST_INTENT) , movie);
         startActivity(intent);
 
@@ -116,6 +126,12 @@ public class MainActivity extends AppCompatActivity
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu ,menu);
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if( IS_FAV_MOVIES_CLICKED ) loadFavourites();
     }
 
     @Override
@@ -141,13 +157,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadFavourites() {
-        Context context = this;
-        Class destClass = FavMoviesActivity.class;
-        Intent intent = new Intent(context , destClass);
-        startActivity(intent);
+         IS_FAV_MOVIES_CLICKED = true;
+         movieList = null ;
+
+        changeActionBarText( R.string.title_activity_fav_movies );
+
+        if( LOADER_DATA == 0 ){
+            getSupportLoaderManager().initLoader(FAV_LOADER_ID, null, this);
+            LOADER_DATA = 1;
+        }
+        else {
+            getSupportLoaderManager().restartLoader(FAV_LOADER_ID, null, this);
+        }
+
     }
 
     private void loadDefaultMovieList() {
+
         mLoadingIndicator.setVisibility(View.VISIBLE);
         loadMostPopularMovies();
     }
@@ -164,6 +190,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadMovies(String mUrl){
+        IS_FAV_MOVIES_CLICKED = false;
+        changeActionBarText( R.string.app_name );
+
         if(isOnline()) {
             new LoadMovieTask().execute(mUrl);
         }
@@ -187,6 +216,9 @@ public class MainActivity extends AppCompatActivity
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
         mErrorMessageDisplay.setText(getString(stringIndex));
     }
+    private void changeActionBarText(int id){
+        getSupportActionBar().setTitle(id);
+    }
 
     private boolean isOnline(){
         NetworkInfo netInfo=null;
@@ -198,6 +230,47 @@ public class MainActivity extends AppCompatActivity
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
+    @NonNull
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+        switch (id) {
+            case FAV_LOADER_ID:
+                Uri movieQueryUri = MoviesContract.CONTENT_URI;
+
+                return new CursorLoader(this,
+                        movieQueryUri,
+                        null,
+                        null,
+                        null,
+                        null);
+
+            default:
+                throw new RuntimeException("Loader Not Implemented: " + id);
+        }
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        if( movieList == null )
+            movieList = MovieDataUtils.getListFromCursor(data);
+
+        if( movieList.size() > 0){
+            movieAdapter.setMovies( movieList );
+        }else {
+            showErrorMessage(R.string.no_favourites);
+        }
+
+        if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
+        mRecyclerView.smoothScrollToPosition(mPosition);
+
+        if (data.getCount() > 0) showMovieDataView();
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+
+    }
 
 
     //Stage 1 implementation

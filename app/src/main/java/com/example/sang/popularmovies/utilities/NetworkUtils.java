@@ -2,6 +2,8 @@ package com.example.sang.popularmovies.utilities;
 
 import android.net.Uri;
 
+import com.example.sang.popularmovies.BuildConfig;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -27,7 +29,7 @@ public class NetworkUtils {
     private static final String page="1";
 
     //API Key here
-    private static final String api_key="";
+    private static final String api_key= BuildConfig.API_KEY;;
 
     private static final String default_sort ="popularity.desc";
 

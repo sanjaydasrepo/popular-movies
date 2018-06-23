@@ -34,4 +34,6 @@
     <string name="label_rating">Rating</string>
     <string name="play_button">play_button</string>
     <string name="no_favourites">You dont have any favourite movies</string>
+    <string name="LOADER_DATA_KEY">LOADER-DATA</string>
+    <string name="MENU_ITEM_CLICKED_KEY">clicked-item-key</string>
 </resources>
